@@ -36,26 +36,57 @@ System.ArgumentException: the topParser specified is not found in this ebnf
 			Console.Out.WriteLine ("No luck!");
 		}
 		else {
-			int token = 0;
+			int token1 = 0;
 			foreach (var m in match.Matches) {
-				Console.WriteLine ("{0}: {1}, {2}", ++token, m.Text, m.Name);
+				Console.WriteLine ("{0}: {1}, {2}", token1++, m.Text, m.Name);
 			}
+			Console.WriteLine ("Matches of query_specification");
+			var query_specification = match.Matches[0];
+			int token2 = 0;
+			foreach (var m in query_specification.Matches) {
+				Console.WriteLine ("{0}: {1}, {2}", token2++, m.Text, m.Name);
+			}
+			Console.WriteLine ("Matches of from_clause");
+			var table_expression = query_specification.Matches [2];
+			var from_clause = table_expression.Matches[0];
+			var table_reference_list = from_clause.Matches [0];
+			var table_reference = table_reference_list.Matches [0];
+			var table_primary_or_joined_table = table_reference.Matches [0];
+			int token3 = 0;
+			foreach (var m in table_primary_or_joined_table.Matches) {
+				Console.WriteLine ("{0}: {1}, {2}", token3++, m.Text, m.Name);
+			}
+			var joined_table = table_primary_or_joined_table.Matches [1];
+			var qualified_join = joined_table.Matches [0];
+			foreach (var m in qualified_join.Matches) {
+				Console.WriteLine ("{0}: {1}, {2}", token3++, m.Text, m.Name);
+			}
+			// join_specification rule fails
 		}
 	}
 }
 /*
-ditted indetifier was not parsed:
-1: SELECT * FROM table1 AS a INNER JOIN table2 AS B ON a, query_specification
-2: ., period
-3: id, regular_identifier
-4: =, equals_operator
-5: b, regular_identifier
-6: ., period
-7: a_id, regular_identifier
-8: WHERE, reserved_word
-9: a, regular_identifier
-10: ., period
-11: name, regular_identifier
-12: =, equals_operator
-13: 'test', character_string_literal
+0: SELECT * FROM table1 AS a INNER JOIN table2 AS B ON a, query_specification
+1: ., period
+2: id, regular_identifier
+3: =, equals_operator
+4: b, regular_identifier
+5: ., period
+6: a_id, regular_identifier
+7: WHERE, reserved_word
+8: a, regular_identifier
+9: ., period
+10: name, regular_identifier
+11: =, equals_operator
+12: 'test', character_string_literal
+Matches of query_specification
+0: SELECT, SELECT
+1: *, select_list
+2: FROM table1 AS a INNER JOIN table2 AS B ON a, table_expression
+Matches of from_clause
+0: table1 AS a, table_primary
+1:  INNER JOIN table2 AS B ON a, joined_table
+2: INNER, join_type
+3: table2 AS B, table_reference
+4: ON a, join_specification
 */
