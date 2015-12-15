@@ -43,3 +43,19 @@ System.ArgumentException: the topParser specified is not found in this ebnf
 		}
 	}
 }
+/*
+ditted indetifier was not parsed:
+1: SELECT * FROM table1 AS a INNER JOIN table2 AS B ON a, query_specification
+2: ., period
+3: id, regular_identifier
+4: =, equals_operator
+5: b, regular_identifier
+6: ., period
+7: a_id, regular_identifier
+8: WHERE, reserved_word
+9: a, regular_identifier
+10: ., period
+11: name, regular_identifier
+12: =, equals_operator
+13: 'test', character_string_literal
+*/

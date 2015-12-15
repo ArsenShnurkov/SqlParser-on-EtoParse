@@ -74,7 +74,7 @@ from_clause = "FROM", table_reference_list;
 table_reference_list = table_reference, [ { comma, table_reference } ] ;
 table_reference = table_primary_or_joined_table; (* [ <sample clause> ] *)
 table_primary_or_joined_table = table_primary | joined_table ;
-table_primary = table_or_query_name [ [ "AS" ], correlation_name ];
+table_primary = table_or_query_name, [ [ "AS" ], correlation_name ];
 (*<table primary> ::= 
 		<table or query name> [ [ AS ] <correlation name> [ <left paren> <derived column list> <right paren> ] ]
 	|	<derived table> [ AS ] <correlation name> [ <left paren> <derived column list> <right paren> ]
@@ -96,7 +96,7 @@ outer_join_type = "LEFT" | "RIGHT" | "FULL" ;
 join_specification = join_condition | named_columns_join;
 join_condition = "ON", search_condition ;
 
-named_columns_join = "USING" left_paren join_column_list, right_paren;
+named_columns_join = "USING", left_paren, join_column_list, right_paren;
 
 join_column_list = column_name_list;
 
@@ -150,6 +150,6 @@ nonparenthesized_value_expression_primary = column_reference;
 column_reference = basic_identifier_chain ;
 (* |	"MODULE" period, <qualified identifier> <period> <column name> *)
 
-SQL_procedure_statement =  { reserved_word | regular_identifier | character_string_literal  
+SQL_procedure_statement =  { query_specification | reserved_word | regular_identifier | character_string_literal  
 		| asterisk | period | equals_operator | underscore | quote
 		} ;
