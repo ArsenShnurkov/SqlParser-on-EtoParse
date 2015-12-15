@@ -31,10 +31,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="Eto.Parse">
+      <HintPath>..\packages\Eto.Parse.1.4.0\lib\net45\Eto.Parse.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="grammars\test-grammar-1.ebnf" />
+    <None Include="grammars\sql-2003-2.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="grammars\" />
+  </ItemGroup>
 </Project>
