@@ -55,9 +55,9 @@ identifier = actual_identifier;
 
 column_name = identifier;
 correlation_name = identifier;
-query_name = identifier;
 catalog_name = identifier;
 qualified_identifier = identifier;
+(*query_name = identifier;*)
 
 identifier_chain = identifier, [ { period, identifier } ];
 basic_identifier_chain = identifier_chain;
@@ -102,10 +102,10 @@ join_column_list = column_name_list;
 
 column_name_list = column_name, [ { comma, column_name } ];
 
-table_or_query_name = table_name | query_name ;
+table_or_query_name = table_name (*| query_name*) ;
 table_name = local_or_schema_qualified_name;
 
-local_or_schema_qualified_name = local_or_schema_qualifier, period, qualified_identifier;
+local_or_schema_qualified_name = [local_or_schema_qualifier, period], qualified_identifier;
 local_or_schema_qualifier = schema_name | "MODULE";
 
 schema_name = [ catalog_name, period ], unqualified_schema_name;
@@ -183,7 +183,9 @@ comp_op = equals_operator ;
 
 row_value_special_case = nonparenthesized_value_expression_primary;
 
-nonparenthesized_value_expression_primary = column_reference;
+nonparenthesized_value_expression_primary = column_reference
+    | unsigned_value_specification
+    ;
 (*		<unsigned value specification>
 	|	<column reference>
 	|	<set function specification>
@@ -204,8 +206,20 @@ nonparenthesized_value_expression_primary = column_reference;
 	|	<routine invocation>
 	|	<next value expression>*)
 
+unsigned_value_specification = unsigned_literal;
+unsigned_literal = general_literal;
+(* <unsigned literal> ::= <unsigned numeric literal> | <general literal> *)
 
-
+general_literal = character_string_literal;
+(*<general literal> ::=
+		<character string literal>
+	|	<national character string literal>
+	|	<Unicode character string literal>
+	|	<binary string literal>
+	|	<datetime literal>
+	|	<interval literal>
+	|	<boolean literal>
+*)
 
 SQL_procedure_statement =  { query_specification | reserved_word | regular_identifier | character_string_literal  
 		| asterisk | period | equals_operator | underscore | quote
