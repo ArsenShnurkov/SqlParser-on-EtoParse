@@ -37,8 +37,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Globals.Resources.cs" />
+    <Compile Include="Globals.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -50,5 +50,6 @@
   <ItemGroup>
     <EmbeddedResource Include="grammars\sql-2003-2.txt" />
     <EmbeddedResource Include="grammars\test-grammar-1.ebnf" />
+    <EmbeddedResource Include="grammars\test-grammar-2.ebnf" />
   </ItemGroup>
 </Project>
