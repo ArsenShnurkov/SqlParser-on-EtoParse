@@ -1,0 +1,46 @@
+﻿simple_Latin_upper_case_letter =
+		"A" | "B" | "C" | "D" | "E" |
+		"F" | "G" | "H" | "I" | "J" |
+		"K" | "L" | "M" | "N" | "O" |
+		"P" | "Q" | "R" | "S" | "T" |
+		"U" | "V" | "W" | "X" | "Y" | "Z"
+		;
+
+simple_Latin_lower_case_letter =
+		"a" | "b" | "c" | "d" | "e" |
+		"f" | "g" | "h" | "i" | "j" |
+		"k" | "l" | "m" | "n" | "o" |
+		"p" | "q" | "r" | "s" | "t" |
+		"u" | "v" | "w" | "x" | "y" | "z"
+		;
+
+digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+		;
+
+asterisk = "*" ;
+period = "." ;
+equals_operator = "=" ;
+underscore = "_" ;
+quote = "'";
+
+reserved_word =	"SELECT"
+	| "FROM"
+	| "AS"
+	| "INNER"
+	| "JOIN"
+	| "ON"
+	| "WHERE"
+	;
+
+regular_identifier := identifier_start, { identifier_extend } ;
+identifier_start = simple_Latin_upper_case_letter | simple_Latin_lower_case_letter | underscore ;
+identifier_extend = identifier_start | digit ;
+
+character_string_literal :=	quote, { character_representation }, quote ;
+character_representation := nonquote_character | quote_symbol;
+quote symbol := quote, quote ;
+nonquote_character := ? Terminals.AnyChar ? - quote ;
+
+SQL_procedure_statement =  { reserved_word | regular_identifier | character_string_literal  
+		| asterisk | period | equals_operator | underscore | quote
+		} ;
