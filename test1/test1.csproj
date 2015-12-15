@@ -51,5 +51,6 @@
     <EmbeddedResource Include="grammars\sql-2003-2.txt" />
     <EmbeddedResource Include="grammars\test-grammar-1.ebnf" />
     <EmbeddedResource Include="grammars\test-grammar-2.ebnf" />
+    <EmbeddedResource Include="grammars\test-grammar-3.ebnf" />
   </ItemGroup>
 </Project>

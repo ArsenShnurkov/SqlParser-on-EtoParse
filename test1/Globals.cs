@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 partial class Globals {
 	static void Main(string[] args) {
-		var fileContent = LoadFromResource("test1", "grammars", "test-grammar-2.ebnf");
+		var fileContent = LoadFromResource("test1", "grammars", "test-grammar-3.ebnf");
 
 		EbnfStyle style = (EbnfStyle)(
 			(uint)EbnfStyle.Iso14977 
@@ -43,32 +43,3 @@ System.ArgumentException: the topParser specified is not found in this ebnf
 		}
 	}
 }
-
-/*
-Parsed as:
-1: SELECT, reserved_word
-2: *, asterisk
-3: FROM, reserved_word
-4: table1, regular_identifier
-5: AS, reserved_word
-6: a, regular_identifier
-7: INNER, reserved_word
-8: JOIN, reserved_word
-9: table2, regular_identifier
-10: AS, reserved_word
-11: B, regular_identifier
-12: ON, reserved_word
-13: a, regular_identifier
-14: ., period
-15: id, regular_identifier
-16: =, equals_operator
-17: b, regular_identifier
-18: ., period
-19: a_id, regular_identifier
-20: WHERE, reserved_word
-21: a, regular_identifier
-22: ., period
-23: name, regular_identifier
-24: =, equals_operator
-25: 'test', character_string_literal
-*/
