@@ -149,6 +149,63 @@ nonparenthesized_value_expression_primary = column_reference;
 *)
 column_reference = basic_identifier_chain ;
 (* |	"MODULE" period, <qualified identifier> <period> <column name> *)
+predicate = comparison_predicate;
+(*
+<predicate> ::=
+		<comparison predicate>
+	|	<between predicate>
+	|	<in predicate>
+	|	<like predicate>
+	|	<similar predicate>
+	|	<null predicate>
+	|	<quantified comparison predicate>
+	|	<exists predicate>
+	|	<unique predicate>
+	|	<normalized predicate>
+	|	<match predicate>
+	|	<overlaps predicate>
+	|	<distinct predicate>
+	|	<member predicate>
+	|	<submultiset predicate>
+	|	<set predicate>
+	|	<type predicate>
+*)
+comparison_predicate = row_value_predicand, comparison_predicate_part_2;
+row_value_predicand = row_value_special_case (*| row_value_constructor_predicand*);
+comparison_predicate_part_2 = comp_op, row_value_predicand;
+comp_op = equals_operator ;
+(*
+	|	<not equals operator>
+	|	<less than operator>
+	|	<greater than operator>
+	|	<less than or equals operator>
+	|	<greater than or equals operator> *)
+
+row_value_special_case = nonparenthesized_value_expression_primary;
+
+nonparenthesized_value_expression_primary = column_reference;
+(*		<unsigned value specification>
+	|	<column reference>
+	|	<set function specification>
+	|	<window function>
+	|	<scalar subquery>
+	|	<case expression>
+	|	<cast specification>
+	|	<field reference>
+	|	<subtype treatment>
+	|	<method invocation>
+	|	<static method invocation>
+	|	<new specification>
+	|	<attribute or method reference>
+	|	<reference resolution>
+	|	<collection value constructor>
+	|	<array element reference>
+	|	<multiset element reference>
+	|	<routine invocation>
+	|	<next value expression>*)
+
+
+
 
 SQL_procedure_statement =  { query_specification | reserved_word | regular_identifier | character_string_literal  
 		| asterisk | period | equals_operator | underscore | quote

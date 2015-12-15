@@ -61,32 +61,24 @@ System.ArgumentException: the topParser specified is not found in this ebnf
 			foreach (var m in qualified_join.Matches) {
 				Console.WriteLine ("{0}: {1}, {2}", token3++, m.Text, m.Name);
 			}
-			// join_specification rule fails
+			// Now one more bug is in WHERE clause:
 		}
 	}
 }
 /*
-0: SELECT * FROM table1 AS a INNER JOIN table2 AS B ON a, query_specification
-1: ., period
-2: id, regular_identifier
-3: =, equals_operator
-4: b, regular_identifier
-5: ., period
-6: a_id, regular_identifier
-7: WHERE, reserved_word
-8: a, regular_identifier
-9: ., period
-10: name, regular_identifier
-11: =, equals_operator
-12: 'test', character_string_literal
+
+0: SELECT * FROM table1 AS a INNER JOIN table2 AS B ON a.id = b.a_id WHERE a.nam, query_specification
+1: =, equals_operator
+2: 'test', character_string_literal
 Matches of query_specification
 0: SELECT, SELECT
 1: *, select_list
-2: FROM table1 AS a INNER JOIN table2 AS B ON a, table_expression
+2: FROM table1 AS a INNER JOIN table2 AS B ON a.id = b.a_id WHERE a.nam, table_expression
 Matches of from_clause
 0: table1 AS a, table_primary
-1:  INNER JOIN table2 AS B ON a, joined_table
+1:  INNER JOIN table2 AS B ON a.id = b.a_id, joined_table
 2: INNER, join_type
 3: table2 AS B, table_reference
-4: ON a, join_specification
+4: ON a.id = b.a_id, join_specification
+
 */
