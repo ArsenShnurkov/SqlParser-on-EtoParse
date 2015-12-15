@@ -3,21 +3,23 @@ using System.IO;
 using Eto.Parse;
 using Eto.Parse.Grammars;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 partial class Globals {
+	const string nameOfTheStartingRule = "SQL_procedure_statement";
 	static void Main(string[] args) {
-		var fileContent = LoadFromResource("test1", "grammars", "test-grammar-2.ebnf");
+		var fileContent = LoadFromResource("test1", "grammars", "test-grammar-3.ebnf");
 
 		EbnfStyle style = (EbnfStyle)(
 			(uint)EbnfStyle.Iso14977 
 			//& ~(uint) EbnfStyle.WhitespaceSeparator	
 			| (uint) EbnfStyle.EscapeTerminalStrings);
 
+		EbnfGrammar grammar;
 		Grammar parser;
 		try
 		{
-			var grammar = new EbnfGrammar(style);
-			var nameOfTheStartingRule = "SQL_procedure_statement";
+			grammar = new EbnfGrammar(style);
 			parser = grammar.Build(fileContent, nameOfTheStartingRule);
 		}
 		catch (Exception ex)
@@ -36,39 +38,102 @@ System.ArgumentException: the topParser specified is not found in this ebnf
 			Console.Out.WriteLine ("No luck!");
 		}
 		else {
-			int token = 0;
-			foreach (var m in match.Matches) {
-				Console.WriteLine ("{0}: {1}, {2}", ++token, m.Text, m.Name);
+			DumpAllMatches (match, nameOfTheStartingRule);
+		}
+	}
+	public static void DumpAllMatches(Match m, string name)
+	{
+		for (int pos = 0; pos < m.Matches.Count; pos++)
+		{
+			Match nm = m.Matches [pos];
+			var full_name = nm.Name + " <- " + name;
+
+			bool low = IsTooLow (nm.Name);
+			if (nm.Text != m.Text) {
+				string fmt = "\"{0}\"" + Environment.NewLine + "\t" + "{1}";
+				Console.WriteLine (fmt, nm.Text, full_name);
+			}
+			if (!low) {
+				DumpAllMatches (nm, full_name);
 			}
 		}
+	}
+	static bool IsTooLow(string rule)
+	{
+		if (rule == "identifier") return true;
+		if (rule == "character_string_literal") return true;
+		return false;
 	}
 }
 
 /*
-Parsed as:
-1: SELECT, reserved_word
-2: *, asterisk
-3: FROM, reserved_word
-4: table1, regular_identifier
-5: AS, reserved_word
-6: a, regular_identifier
-7: INNER, reserved_word
-8: JOIN, reserved_word
-9: table2, regular_identifier
-10: AS, reserved_word
-11: B, regular_identifier
-12: ON, reserved_word
-13: a, regular_identifier
-14: ., period
-15: id, regular_identifier
-16: =, equals_operator
-17: b, regular_identifier
-18: ., period
-19: a_id, regular_identifier
-20: WHERE, reserved_word
-21: a, regular_identifier
-22: ., period
-23: name, regular_identifier
-24: =, equals_operator
-25: 'test', character_string_literal
+"SELECT"
+	SELECT <- query_specification <- SQL_procedure_statement
+"*"
+	select_list <- query_specification <- SQL_procedure_statement
+"FROM table1 AS a INNER JOIN table2 AS B ON a.id = b.a_id WHERE a.name = 'test"
+	table_expression <- query_specification <- SQL_procedure_statement
+"FROM table1 AS a INNER JOIN table2 AS B ON a.id = b.a_id"
+	from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"table1 AS a INNER JOIN table2 AS B ON a.id = b.a_id"
+	table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"table1 AS a"
+	table_primary <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"table1"
+	table_or_query_name <- table_primary <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"a"
+	correlation_name <- table_primary <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+" INNER JOIN table2 AS B ON a.id = b.a_id"
+	joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"INNER"
+	join_type <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"table2 AS B"
+	table_reference <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"table2"
+	table_or_query_name <- table_primary <- table_primary_or_joined_table <- table_reference <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"B"
+	correlation_name <- table_primary <- table_primary_or_joined_table <- table_reference <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"ON a.id = b.a_id"
+	join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"a.id = b.a_id"
+	search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"a.id"
+	row_value_predicand <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"a"
+	identifier <- identifier_chain <- basic_identifier_chain <- column_reference <- nonparenthesized_value_expression_primary <- row_value_special_case <- row_value_predicand <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"."
+	period <- identifier_chain <- basic_identifier_chain <- column_reference <- nonparenthesized_value_expression_primary <- row_value_special_case <- row_value_predicand <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"id"
+	identifier <- identifier_chain <- basic_identifier_chain <- column_reference <- nonparenthesized_value_expression_primary <- row_value_special_case <- row_value_predicand <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"= b.a_id"
+	comparison_predicate_part_2 <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"="
+	comp_op <- comparison_predicate_part_2 <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"b.a_id"
+	row_value_predicand <- comparison_predicate_part_2 <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"b"
+	identifier <- identifier_chain <- basic_identifier_chain <- column_reference <- nonparenthesized_value_expression_primary <- row_value_special_case <- row_value_predicand <- comparison_predicate_part_2 <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"."
+	period <- identifier_chain <- basic_identifier_chain <- column_reference <- nonparenthesized_value_expression_primary <- row_value_special_case <- row_value_predicand <- comparison_predicate_part_2 <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"a_id"
+	identifier <- identifier_chain <- basic_identifier_chain <- column_reference <- nonparenthesized_value_expression_primary <- row_value_special_case <- row_value_predicand <- comparison_predicate_part_2 <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- join_condition <- join_specification <- qualified_join <- joined_table <- table_primary_or_joined_table <- table_reference <- table_reference_list <- from_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"WHERE a.name = 'test'"
+	where_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"a.name = 'test'"
+	search_condition <- where_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"a.name"
+	row_value_predicand <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- where_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"a"
+	identifier <- identifier_chain <- basic_identifier_chain <- column_reference <- nonparenthesized_value_expression_primary <- row_value_special_case <- row_value_predicand <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- where_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"."
+	period <- identifier_chain <- basic_identifier_chain <- column_reference <- nonparenthesized_value_expression_primary <- row_value_special_case <- row_value_predicand <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- where_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"name"
+	identifier <- identifier_chain <- basic_identifier_chain <- column_reference <- nonparenthesized_value_expression_primary <- row_value_special_case <- row_value_predicand <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- where_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"= 'test'"
+	comparison_predicate_part_2 <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- where_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"="
+	comp_op <- comparison_predicate_part_2 <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- where_clause <- table_expression <- query_specification <- SQL_procedure_statement
+"'test'"
+	row_value_predicand <- comparison_predicate_part_2 <- comparison_predicate <- predicate <- boolean_primary <- boolean_test <- boolean_factor <- boolean_term <- boolean_value_expression <- search_condition <- where_clause <- table_expression <- query_specification <- SQL_procedure_statement
+
 */
